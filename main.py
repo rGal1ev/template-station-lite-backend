@@ -36,30 +36,30 @@ competencies = [
         "id": 1,
         "title": "ПК 01",
         "type": "practicial",
-        "disciplines": [1]
+        "specialties": [1]
     },
     {
         "id": 2,
         "type": "general",
         "title": "ОК 01",
-        "disciplines": [1, 2]
+        "specialties": [1, 2]
     }
 ]
 
 
-@app.get("/disciplines")
+@app.get("/api/disciplines")
 @cross_origin()
 def send_disciplines():
     return jsonify(disciplines)
 
 
-@app.get("/specialties")
+@app.get("/api/specialties")
 @cross_origin()
 def send_specialties():
     return jsonify(specialties)
 
 
-@app.get("/speciality_disciplines/<int:ID>")
+@app.get("/api/speciality_disciplines/<int:ID>")
 @cross_origin()
 def send_disciplines_by_id(ID: int):
     founded_disciplines = []
@@ -73,6 +73,21 @@ def send_disciplines_by_id(ID: int):
 
     else:
         return jsonify(founded_disciplines)
+
+
+@app.get("/api/speciality_competencies/<int:ID>")
+def send_competencies_by_id(ID: int):
+    founded_competencies = []
+
+    for competency in competencies:
+        if ID in competency["specialties"]:
+            founded_competencies.append(competency)
+
+    if len(founded_competencies) == 0:
+        return jsonify({"message": "Дисциплины указанной специальности не найдены"})
+
+    else:
+        return jsonify(founded_competencies)
 
 
 if __name__ == "__main__":
