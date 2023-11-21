@@ -1,5 +1,10 @@
-from flask import Flask, jsonify
+from io import BytesIO
+
+from flask import Flask, jsonify, request, send_file
 from flask_cors import CORS, cross_origin
+
+from utils import format_program
+from docxtpl import DocxTemplate
 
 app = Flask(__name__)
 cors = CORS(app)
@@ -90,5 +95,27 @@ def send_competencies_by_id(ID: int):
         return jsonify(founded_competencies)
 
 
+def process_program(program: dict):
+    program = format_program(program)
+    buffer = BytesIO()
+
+    template = DocxTemplate("templates/template.docx")
+    template.render(program)
+
+    template.save(buffer)
+    buffer.seek(0)
+
+    return buffer
+
+
+@app.post("/api/generate")
+@cross_origin()
+def generate_document():
+    program = request.get_json()
+    file_to_send = process_program(program)
+
+    return send_file(file_to_send, download_name="generated.docx")
+
+
 if __name__ == "__main__":
-    app.run(debug=True, host='0.0.0.0')
+    app.run()
